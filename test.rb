@@ -4,35 +4,35 @@ file = ARGV[0]
 xml  = Nokogiri::XML(open(file).read)
 
 songs = xml.xpath('plist/dict/dict/dict')
+key_names = [
+  'Name',
+  'Artist',
+  'Album Artist',
+  'Composer',
+  'Album',
+  'Genre',
+  'Total Time',
+  'Year',
+  'Date Modified',
+  'Date Added',
+  'Play Count',
+  'Play Date',
+  'Play Date UTC',
+  'Rating',
+  'Album Rating'
+]
 
 song_info_list = []
 for song in songs
     song_info = {}
-    key = ""
 
-keys = song.xpath('key')
-keys.each do |key|
-    p key.content
-end
-    song.each do |element|
-      if element.tag == "key"
-            key = element.text
-        else
-            song_info[key] = element.text
-            song_info_list.push(song_info)
+    keys = song.xpath('key')
+    keys.each do |key|
+        if key_names.include?(key.content)
+            key_name = key.content
+            song_info[key_name] = key.next.content
         end
     end
 
-if 0
-    for element in song
-        if element.tag == "key"
-            key = element.text
-        else
-            song_info[key] = element.text
-            song_info_list.push(song_info)
-        end
-    end
+    song_info_list.push(song_info)
 end
-end
-
-p song_info_list[0]
