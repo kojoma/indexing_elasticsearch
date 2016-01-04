@@ -35,4 +35,5 @@ build/
 .rvmrc
 
 *.xml
+*.json
 .DS_Store
