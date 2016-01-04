@@ -1,6 +1,6 @@
 require 'nokogiri'
 
-file = "/Users/masha/Music/iTunes/iTunes Music Library.xml"
+file = ARGV[0]
 xml  = Nokogiri::XML(open(file).read)
 
 songs = xml.xpath('plist/dict/dict/dict')
