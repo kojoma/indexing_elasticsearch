@@ -29,78 +29,66 @@ client = Elasticsearch::Client.new(host: ES_HOST,
 
 # Moves Exportからデータを取得してelasticsearchに登録
 start_date = Date.new(2013, 3, 4)
-end_date = Date.new(2013, 3, 10)
-#end_date   = Date.today
+end_date   = Date.today
 while start_date < end_date do
   start_date_str = start_date.strftime("%Y%m%d")
   agent.get(MOVES_URL + start_date_str)
 
   json    = JSON.parse(agent.page.body)
   summary_list = json[0]['summary']
-  summary_list.each do |summary|
-=begin
-    client.create index: 'moves', type: 'summary', body: {
-      date: start_date.strftime("%Y-%m-%d"),
-      distance: summary['distance'],
-      duration: summary['duration'],
-      calories: summary['calories'],
-      steps: summary['steps'],
-      group: summary['group'],
-      activity: summary['activity']
-    }
-    p 'summary: ' + start_date.strftime("%Y-%m-%d")
-=end
+
+  if !summary_list.nil?
+    summary_list.each do |summary|
+      client.create index: 'summary', type: 'summary', body: {
+        date:     start_date.strftime("%Y-%m-%d"),
+        distance: summary['distance'],
+        duration: summary['duration'],
+        calories: summary['calories'],
+        steps:    summary['steps'],
+        group:    summary['group'],
+        activity: summary['activity']
+      }
+      p 'summary: ' + start_date.strftime("%Y-%m-%d")
+    end
   end
 
   segments = json[0]['segments']
-  segments.each do |segment|
-    activities = segment['activities']
 
-    if activities.nil?
-      start_time = DateTime.parse(segment['startTime'])
-      end_time   = DateTime.parse(segment['endTime'])
-      start_time_str = start_time.strftime("%Y-%m-%d %H:%M:%S")
-      end_time_str   = end_time.strftime("%Y-%m-%d %H:%M:%S")
-      client.create index: 'moves', type: 'geo', body: {
-        start_time: start_time_str,
-        end_time:   end_time_str,
-        distance:   0,
-        duration:   0,
-        calories:   0,
-        steps:      0,
-        group:      '',
-        activity:   '',
-        location:   {
-          lon:      segment['place']['location']['lon'],
-          lat:      segment['place']['location']['lat']
-        }
-      }
-    else
-      activities.each do |activity|
-        track_points = activity['trackPoints']
-        start_time = DateTime.parse(activity['startTime'])
-        end_time   = DateTime.parse(activity['endTime'])
+  if !segments.nil?
+    segments.each do |segment|
+      activities = segment['activities']
+
+      if activities.nil?
+        start_time = DateTime.parse(segment['startTime'])
+        end_time   = DateTime.parse(segment['endTime'])
         start_time_str = start_time.strftime("%Y-%m-%d %H:%M:%S")
         end_time_str   = end_time.strftime("%Y-%m-%d %H:%M:%S")
-
-        if track_points.nil?
-          client.create index: 'moves', type: 'geo', body: {
-            start_time: start_time_str,
-            end_time:   end_time_str,
-            distance:   activity['distance'],
-            duration:   activity['duration'],
-            calories:   activity['calories'],
-            steps:      activity['steps'],
-            group:      activity['group'],
-            activity:   activity['activity'],
-            location:   {
-              lon:      segment['place']['location']['lon'],
-              lat:      segment['place']['location']['lat']
-            }
+        client.create index: 'geo', type: 'geo', body: {
+          date:       start_date.strftime("%Y-%m-%d"),
+          start_time: start_time_str,
+          end_time:   end_time_str,
+          distance:   0,
+          duration:   0,
+          calories:   0,
+          steps:      0,
+          group:      '',
+          activity:   '',
+          location:   {
+            lon:      segment['place']['location']['lon'],
+            lat:      segment['place']['location']['lat']
           }
-        else
-          track_points.each do |track_point|
-            client.create index: 'moves', type: 'geo', body: {
+        }
+      else
+        activities.each do |activity|
+          track_points = activity['trackPoints']
+          start_time = DateTime.parse(activity['startTime'])
+          end_time   = DateTime.parse(activity['endTime'])
+          start_time_str = start_time.strftime("%Y-%m-%d %H:%M:%S")
+          end_time_str   = end_time.strftime("%Y-%m-%d %H:%M:%S")
+
+          if track_points.nil?
+            client.create index: 'geo', type: 'geo', body: {
+              date:       start_date.strftime("%Y-%m-%d"),
               start_time: start_time_str,
               end_time:   end_time_str,
               distance:   activity['distance'],
@@ -110,15 +98,33 @@ while start_date < end_date do
               group:      activity['group'],
               activity:   activity['activity'],
               location:   {
-                lon:      track_point['lon'],
-                lat:      track_point['lat']
+                lon:      segment['place']['location']['lon'],
+                lat:      segment['place']['location']['lat']
               }
             }
+          else
+            track_points.each do |track_point|
+              client.create index: 'geo', type: 'geo', body: {
+                date:       start_date.strftime("%Y-%m-%d"),
+                start_time: start_time_str,
+                end_time:   end_time_str,
+                distance:   activity['distance'],
+                duration:   activity['duration'],
+                calories:   activity['calories'],
+                steps:      activity['steps'],
+                group:      activity['group'],
+                activity:   activity['activity'],
+                location:   {
+                  lon:      track_point['lon'],
+                  lat:      track_point['lat']
+                }
+              }
+            end
           end
         end
       end
+      p 'geo: ' + start_date.strftime("%Y-%m-%d")
     end
-    p 'geo: ' + start_date.strftime("%Y-%m-%d")
   end
 
   start_date = start_date + 1
