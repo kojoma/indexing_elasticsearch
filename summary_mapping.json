@@ -1,0 +1,29 @@
+{
+  "mappings" : {
+    "summary" : {
+      "properties" : {
+        "date" : {
+          "type" : "date"
+        },
+        "distance" : {
+          "type" : "integer"
+        },
+        "duration" : {
+          "type" : "integer"
+        },
+        "calories" : {
+          "type" : "integer"
+        },
+        "steps" : {
+          "type" : "integer"
+        },
+        "group" : {
+          "type" : "string"
+        },
+        "activity" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

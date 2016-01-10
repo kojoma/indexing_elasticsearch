@@ -35,5 +35,5 @@ build/
 .rvmrc
 
 *.xml
-*.json
+itunes.json
 .DS_Store

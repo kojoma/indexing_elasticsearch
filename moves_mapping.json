@@ -1,0 +1,65 @@
+{
+  "mappings" : {
+    "summary" : {
+      "properties" : {
+        "date" : {
+          "type" : "date"
+        },
+        "distance" : {
+          "type" : "integer"
+        },
+        "duration" : {
+          "type" : "integer"
+        },
+        "calories" : {
+          "type" : "integer"
+        },
+        "steps" : {
+          "type" : "integer"
+        },
+        "group" : {
+          "type" : "string"
+        },
+        "activity" : {
+          "type" : "string"
+        }
+      }
+    },
+    "geo" : {
+      "properties" : {
+        "date" : {
+          "type" : "date"
+        },
+        "start_time" : {
+          "type" : "date",
+          "format" : "yyyy-MM-dd HH:mm:ss"
+        },
+        "end_time" : {
+          "type" : "date",
+          "format" : "yyyy-MM-dd HH:mm:ss"
+        },
+        "distance" : {
+          "type" : "integer"
+        },
+        "duration" : {
+          "type" : "integer"
+        },
+        "calories" : {
+          "type" : "integer"
+        },
+        "steps" : {
+          "type" : "integer"
+        },
+        "group" : {
+          "type" : "string"
+        },
+        "activity" : {
+          "type" : "string"
+        },
+        "location" : {
+          "type" : "geo_point"
+        }
+      }
+    }
+  }
+}
